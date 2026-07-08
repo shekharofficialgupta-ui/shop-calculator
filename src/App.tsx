@@ -225,11 +225,12 @@ export default function App() {
     } else if (activeTab === "QuickAdd") {
       setSelectedModule("BillMaker");
     } else if (activeTab === "More") {
-      if (selectedModule === "SmartCalculator" || selectedModule === "BillMaker") {
-        setSelectedModule(null);
+      const validMoreModules = ["Settings", "GstCalculator", "DiscountCalculator", "ShoppingList", "EmiCalculator", "Notebook"];
+      if (!validMoreModules.includes(selectedModule || "")) {
+        setSelectedModule("Settings");
       }
     }
-  }, [activeTab]);
+  }, [activeTab, selectedModule]);
   
   const [billTrigger, setBillTrigger] = useState(0);
   const [shoppingTrigger, setShoppingTrigger] = useState(0);
@@ -827,7 +828,7 @@ export default function App() {
           
           {/* Tab 1: Home */}
           <button 
-            onClick={() => setActiveTab("Home")}
+            onClick={() => { setSelectedModule(null); setActiveTab("Home"); }}
             className="flex flex-col items-center gap-1 cursor-pointer transition-all relative py-1"
           >
             <div className={`p-1.5 rounded-xl transition-all ${activeTab === "Home" ? "text-violet-400" : "text-gray-500 hover:text-gray-300"}`}>
@@ -844,7 +845,7 @@ export default function App() {
 
           {/* Tab 2: Bill Maker */}
           <button 
-            onClick={() => setActiveTab("BillMaker")}
+            onClick={() => { setSelectedModule("BillMaker"); setActiveTab("BillMaker"); }}
             className="flex flex-col items-center gap-1 cursor-pointer transition-all relative py-1"
           >
             <div className={`p-1.5 rounded-xl transition-all ${activeTab === "BillMaker" ? "text-cyan-400" : "text-gray-500 hover:text-gray-300"}`}>
@@ -862,7 +863,7 @@ export default function App() {
           {/* Center Floating Action Button (+): Launch Quick Bill */}
           <div className="relative -top-5">
             <button 
-              onClick={() => setActiveTab("QuickAdd")}
+              onClick={() => { setSelectedModule("BillMaker"); setActiveTab("QuickAdd"); }}
               className="w-13 h-13 rounded-full bg-gradient-to-tr from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white flex items-center justify-center shadow-[0_8px_20px_rgba(124,58,237,0.35)] hover:shadow-[0_8px_24px_rgba(124,58,237,0.5)] border-2 border-[#0A0A14] transition-all transform hover:-translate-y-0.5 active:scale-95 cursor-pointer"
             >
               <Plus className="w-6.5 h-6.5 text-white" />
@@ -874,7 +875,7 @@ export default function App() {
 
           {/* Tab 3: Calculator */}
           <button 
-            onClick={() => setActiveTab("Calc")}
+            onClick={() => { setSelectedModule("SmartCalculator"); setActiveTab("Calc"); }}
             className="flex flex-col items-center gap-1 cursor-pointer transition-all relative py-1"
           >
             <div className={`p-1.5 rounded-xl transition-all ${activeTab === "Calc" ? "text-violet-400" : "text-gray-500 hover:text-gray-300"}`}>
@@ -891,7 +892,7 @@ export default function App() {
 
           {/* Tab 4: More Tools */}
           <button 
-            onClick={() => setActiveTab("More")}
+            onClick={() => { setSelectedModule("Settings"); setActiveTab("More"); }}
             className="flex flex-col items-center gap-1 cursor-pointer transition-all relative py-1"
           >
             <div className={`p-1.5 rounded-xl transition-all ${activeTab === "More" ? "text-pink-400" : "text-gray-500 hover:text-gray-300"}`}>
