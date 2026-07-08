@@ -47,8 +47,12 @@ export default function SettingsConfig({
         });
         sharedSuccessfully = true;
       } catch (err: any) {
-        // Gracefully handle cancellation or iframe sandbox blocking without polluting error logs
-        console.warn("Navigator share was not completed or supported in this environment:", err?.message || err);
+        if (err?.name === "AbortError" || err?.message?.toLowerCase().includes("cancel") || err?.message?.toLowerCase().includes("abort")) {
+          // User intentionally canceled the share operation. Mark as handled.
+          sharedSuccessfully = true;
+        } else {
+          console.warn("Navigator share was not completed or supported in this environment:", err?.message || err);
+        }
       }
     }
 
