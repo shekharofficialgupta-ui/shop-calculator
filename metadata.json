@@ -1,0 +1,6 @@
+{
+  "name": "Shop Calculator",
+  "description": "An offline-first calculator, billing, and shop assistant app with intuitive utility calculators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
