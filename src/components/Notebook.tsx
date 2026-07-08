@@ -389,7 +389,7 @@ export default function NotebookScreen({ language }: NotebookScreenProps) {
           <>
             {/* Notebook search/add actions and dynamic filter pills */}
             <div className="space-y-2.5 mb-2.5">
-              <div className="flex gap-2">
+              <div id="notebook-search-row" className="flex gap-2">
                 <div className="flex-1 bg-[#0F0F23] border border-gray-800 rounded-lg px-2.5 py-1.5 text-xs text-gray-400 flex items-center gap-2">
                   <Search className="w-3.5 h-3.5 text-gray-500" />
                   <input
@@ -409,7 +409,7 @@ export default function NotebookScreen({ language }: NotebookScreenProps) {
               </div>
 
               {/* Category horizontal scrolling pills filter */}
-              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              <div id="notebook-tags-row" className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                 {["ALL", "GENERAL", "UDHAAR LOG", "INVENTORY", "TAX FILING", "REMINDER"].map((cat) => {
                   const isActive = selectedCategory === cat;
                   let displayCat = cat;

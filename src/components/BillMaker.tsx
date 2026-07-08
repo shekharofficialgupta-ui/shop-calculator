@@ -516,7 +516,7 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
         {/* Invoice input form */}
         <div className="space-y-3.5 mb-6">
           {/* Metadata Grid */}
-          <div className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3 grid grid-cols-2 gap-2">
+          <div id="bill-customer-info" className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3 grid grid-cols-2 gap-2">
             <div>
               <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                 {getTranslation("clientName", language)}
@@ -559,6 +559,7 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
                 </button>
               </div>
               <button 
+                id="bill-add-item-btn"
                 onClick={handleAddItem}
                 className="text-[10px] text-cyan-400 bg-cyan-400/10 hover:bg-cyan-400/20 px-2 py-1 rounded flex items-center gap-1 cursor-pointer transition-colors"
               >
@@ -848,7 +849,7 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
         </div>
 
         {/* Buttons Row */}
-        <div className="grid grid-cols-2 gap-2">
+        <div id="bill-action-row" className="grid grid-cols-2 gap-2">
           <button 
             onClick={handlePrint}
             className="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-xl py-2.5 flex items-center justify-center gap-2 text-xs shadow-[0_4px_12px_rgba(14,116,144,0.3)] cursor-pointer transition-all active:scale-95"

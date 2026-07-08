@@ -189,7 +189,7 @@ export default function EmiCalculator({ onBack, language }: EmiCalculatorProps) 
         {/* Input Parameters Form */}
         <div className="space-y-2.5">
           {/* Loan Amount Card */}
-          <div className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3 flex flex-col justify-between">
+          <div id="emi-loan-card" className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3 flex flex-col justify-between">
             <div className="flex justify-between items-center mb-2">
               <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 {getTranslation("loanAmount", language)}
@@ -321,7 +321,7 @@ export default function EmiCalculator({ onBack, language }: EmiCalculatorProps) 
           </div>
 
           {/* Results Block */}
-          <div className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3.5 space-y-3 shadow-xl">
+          <div id="emi-results-card" className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3.5 space-y-3 shadow-xl">
             <div className="text-center pb-2.5 border-b border-gray-900/40">
               <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest block mb-0.5">
                 {getTranslation("monthlyEmi", language)}

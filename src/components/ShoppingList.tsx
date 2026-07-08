@@ -327,7 +327,7 @@ export default function ShoppingList({ onListChanged, language }: ShoppingListPr
         </div>
 
         {/* Live Shopping Progress Metrics */}
-        <div className="bg-gradient-to-r from-pink-950/15 to-[#0A0A1F] border border-pink-500/15 rounded-xl p-2.5 shadow-md">
+        <div id="shopping-stats-card" className="bg-gradient-to-r from-pink-950/15 to-[#0A0A1F] border border-pink-500/15 rounded-xl p-2.5 shadow-md">
           {/* Row 1: Trolley Progress */}
           <div className="flex items-center justify-between gap-3 text-xs mb-1.5">
             <div className="flex items-center gap-1.5">
@@ -387,6 +387,7 @@ export default function ShoppingList({ onListChanged, language }: ShoppingListPr
                 </div>
               ) : (
                 <div 
+                  id="shopping-budget-box"
                   className="flex items-center gap-1 cursor-pointer hover:text-pink-300 transition-colors"
                   onClick={() => {
                     setBudgetInputVal(budgetLimit.toString());
@@ -471,7 +472,7 @@ export default function ShoppingList({ onListChanged, language }: ShoppingListPr
         </div>
 
         {/* Interactive Add Item Panel */}
-        <form onSubmit={handleAddItem} className="bg-[#0A0A1C]/65 border border-gray-850/60 rounded-xl p-2.5 space-y-2 shadow-sm">
+        <form id="shopping-add-panel" onSubmit={handleAddItem} className="bg-[#0A0A1C]/65 border border-gray-850/60 rounded-xl p-2.5 space-y-2 shadow-sm">
           {/* First line: Name Input and Price input */}
           <div className="flex gap-2">
             <input

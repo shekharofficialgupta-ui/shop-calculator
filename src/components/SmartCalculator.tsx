@@ -444,6 +444,7 @@ export default function SmartCalculator({ onBack, language }: SmartCalculatorPro
               <div className="flex items-center gap-2">
                 {/* Clock button to access history */}
                 <button
+                  id="calc-history-btn"
                   onClick={() => setShowHistoryPage(true)}
                   className="w-7 h-7 rounded-lg bg-gray-900 hover:bg-[#1C1C3F] border border-gray-800/80 flex items-center justify-center text-violet-400 transition-colors cursor-pointer relative"
                   title={getTranslation("tapeHistory", language)}
@@ -457,7 +458,7 @@ export default function SmartCalculator({ onBack, language }: SmartCalculatorPro
             </div>
 
             {/* Display Panel */}
-            <div className="bg-[#0A0A16] border border-gray-850/70 rounded-xl p-2.5 mb-2 text-right shadow-2xl relative group overflow-hidden">
+            <div id="calc-display" className="bg-[#0A0A16] border border-gray-850/70 rounded-xl p-2.5 mb-2 text-right shadow-2xl relative group overflow-hidden">
               {/* Subtle Ambient Light Glow */}
               <div className="absolute top-0 right-0 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl pointer-events-none" />
               

@@ -38,6 +38,7 @@ import ShoppingList from "./components/ShoppingList";
 import EmiCalculator from "./components/EmiCalculator";
 import NotebookScreen from "./components/Notebook";
 import SettingsConfig from "./components/SettingsConfig";
+import { Onboarding, resetOnboarding } from "./components/Onboarding";
 
 export default function App() {
   const { formatInr } = useCurrency();
@@ -162,6 +163,14 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [onboardingKey, setOnboardingKey] = useState(0);
+
+  const handleResetOnboarding = () => {
+    resetOnboarding();
+    setOnboardingKey((prev) => prev + 1);
+    setSelectedModule(null);
+    setActiveTab("Home");
+  };
 
   // Auto-persist shop name to localStorage
   useEffect(() => {
@@ -549,6 +558,7 @@ export default function App() {
                 onLanguageChange={setLanguage}
                 shopName={shopName} 
                 setShopName={setShopName} 
+                onResetOnboarding={handleResetOnboarding}
               />
             )}
           </div>
@@ -899,6 +909,7 @@ export default function App() {
         </div>
       </nav>
 
+      <Onboarding key={onboardingKey} language={language} selectedModule={selectedModule} />
     </div>
   );
 }

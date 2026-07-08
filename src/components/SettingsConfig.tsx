@@ -11,6 +11,7 @@ interface SettingsConfigProps {
   setShopName: (name: string) => void;
   language: string;
   onLanguageChange: (lang: string) => void;
+  onResetOnboarding: () => void;
 }
 
 export default function SettingsConfig({
@@ -18,8 +19,10 @@ export default function SettingsConfig({
   setShopName,
   language,
   onLanguageChange,
+  onResetOnboarding,
 }: SettingsConfigProps) {
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [tutorialToast, setTutorialToast] = useState("");
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({
     bill: false,
     shopping: false,
@@ -30,12 +33,11 @@ export default function SettingsConfig({
   const [shareToast, setShareToast] = useState("");
 
   const handleShareApp = async () => {
-    const appName = "Smart Shop Assistant";
+    const appName = getTranslation("shareTitleText", language);
     const appUrl = window.location.origin + window.location.pathname;
-    const shareMessage = language === "hi" 
-      ? `📈 *स्मार्ट शॉप असिस्टेंट (Smart Shop Assistant)*\n\nअपने दुकान का हिसाब-किताब आसान बनाएं! बिल बनाएं, शॉपिंग लिस्ट प्रबंधित करें और नोटबुक में उधारी/मेमो सहेजें।\n\nअभी ऐप का उपयोग करें: ${appUrl}`
-      : `📈 *Smart Shop Assistant*\n\nManage your shop like a pro! Create bills, manage shopping list, and save udhaar/memos in digital notebook offline.\n\nTry the app now: ${appUrl}`;
+    const shareMessage = `📈 *${appName}*\n\n${getTranslation("shareMessageText", language)}\n\n${getTranslation("tryAppNowText", language)} ${appUrl}`;
 
+    let sharedSuccessfully = false;
     if (navigator.share) {
       try {
         await navigator.share({
@@ -43,17 +45,21 @@ export default function SettingsConfig({
           text: shareMessage,
           url: appUrl,
         });
-      } catch (err) {
-        console.error("Error sharing:", err);
+        sharedSuccessfully = true;
+      } catch (err: any) {
+        // Gracefully handle cancellation or iframe sandbox blocking without polluting error logs
+        console.warn("Navigator share was not completed or supported in this environment:", err?.message || err);
       }
-    } else {
-      // Fallback: Copy to clipboard
+    }
+
+    // Fallback: Copy to clipboard if navigator.share failed, was canceled, or is not supported
+    if (!sharedSuccessfully) {
       try {
         await navigator.clipboard.writeText(shareMessage);
-        setShareToast(language === "hi" ? "✓ लिंक क्लिपबोर्ड पर कॉपी हो गया!" : "✓ Link copied to clipboard!");
+        setShareToast(getTranslation("shareLinkCopied", language));
         setTimeout(() => setShareToast(""), 3500);
       } catch (err) {
-        console.error("Failed to copy:", err);
+        console.warn("Clipboard copy fallback failed:", err);
       }
     }
   };
@@ -592,19 +598,50 @@ export default function SettingsConfig({
             </div>
           </div>
 
+          {/* ONBOARDING TUTORIAL SECTION */}
+          <div className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3 space-y-2.5 shadow-md animate-fadeIn">
+            <div className="flex items-center gap-2 pb-1.5 border-b border-gray-900/40">
+              <HelpCircle className="w-3.5 h-3.5 text-violet-400" />
+              <span className="text-[9px] font-bold text-gray-300 uppercase tracking-wider">
+                {getTranslation("appGuideTitle", language)}
+              </span>
+            </div>
+            
+            <p className="text-[9.5px] text-gray-400 leading-relaxed font-normal">
+              {getTranslation("appGuideDesc", language)}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                onResetOnboarding();
+                setTutorialToast(getTranslation("tutorialResetSuccess", language));
+                setTimeout(() => setTutorialToast(""), 3500);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-[11px] text-white font-bold tracking-wider transition-all active:scale-95 cursor-pointer shadow-lg shadow-rose-950/20"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              {getTranslation("showTutorialBtn", language)}
+            </button>
+
+            {tutorialToast && (
+              <p className="text-[9px] text-emerald-400 bg-emerald-950/20 border border-emerald-900/10 py-1 px-2 rounded-md font-medium text-center animate-fadeIn">
+                {tutorialToast}
+              </p>
+            )}
+          </div>
+
           {/* SHARE APP SECTION */}
           <div className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3 space-y-2.5 shadow-md animate-fadeIn">
             <div className="flex items-center gap-2 pb-1.5 border-b border-gray-900/40">
               <Share2 className="w-3.5 h-3.5 text-violet-400" />
               <span className="text-[9px] font-bold text-gray-300 uppercase tracking-wider">
-                {language === "hi" ? "ऐप साझा करें" : "Share App"}
+                {getTranslation("shareSectionTitle", language)}
               </span>
             </div>
             
             <p className="text-[9.5px] text-gray-400 leading-relaxed font-normal">
-              {language === "hi" 
-                ? "इस स्मार्ट शॉप असिस्टेंट ऐप को अन्य दुकानदारों और दोस्तों के साथ साझा करें ताकि वे भी इसका लाभ उठा सकें!" 
-                : "Share this Smart Shop Assistant app with other shopkeepers and friends so they can benefit too!"}
+              {getTranslation("shareSectionDesc", language)}
             </p>
 
             <button
@@ -613,7 +650,7 @@ export default function SettingsConfig({
               className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-[11px] text-white font-bold tracking-wider transition-all active:scale-95 cursor-pointer shadow-lg shadow-violet-950/20"
             >
               <Share2 className="w-4 h-4" />
-              {language === "hi" ? "ऐप शेयर करें" : "SHARE THIS APP"}
+              {getTranslation("shareBtn", language)}
             </button>
 
             {shareToast && (
