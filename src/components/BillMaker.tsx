@@ -40,7 +40,14 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
   // Load invoice history from localStorage
   const [history, setHistory] = useState<SavedInvoice[]>(() => {
     const saved = localStorage.getItem("bill_invoice_history");
-    return saved ? JSON.parse(saved) : [];
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse bill_invoice_history from localStorage", e);
+      }
+    }
+    return [];
   });
 
   const onHistoryChangedRef = useRef(onHistoryChanged);
@@ -73,7 +80,11 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
 
   const [gstPercent, setGstPercent] = useState<number>(() => {
     const saved = localStorage.getItem("bill_gst_percent");
-    return saved ? parseInt(saved, 10) : 18;
+    if (saved) {
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed)) return parsed;
+    }
+    return 18;
   });
 
   const [isCustomGst, setIsCustomGst] = useState<boolean>(() => {

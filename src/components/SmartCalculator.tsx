@@ -28,7 +28,14 @@ export default function SmartCalculator({ onBack, language }: SmartCalculatorPro
   });
   const [history, setHistory] = useState<Array<{ eq: string; res: string }>>(() => {
     const saved = localStorage.getItem("shop_calc_history");
-    return saved ? JSON.parse(saved) : [];
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse shop_calc_history from localStorage", e);
+      }
+    }
+    return [];
   });
   const [showHistoryPage, setShowHistoryPage] = useState<boolean>(false);
 

@@ -77,7 +77,11 @@ export default function ShoppingList({ onListChanged, language }: ShoppingListPr
   // Editable Budget limit
   const [budgetLimit, setBudgetLimit] = useState<number>(() => {
     const saved = localStorage.getItem("shop_shopping_list_budget");
-    return saved ? parseFloat(saved) : 0; // default total budget 0 for a fresh start
+    if (saved) {
+      const parsed = parseFloat(saved);
+      if (!isNaN(parsed)) return parsed;
+    }
+    return 0; // default total budget 0 for a fresh start
   });
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [budgetInputVal, setBudgetInputVal] = useState("");

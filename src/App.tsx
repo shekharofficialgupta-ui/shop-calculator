@@ -58,13 +58,16 @@ export default function App() {
 
   const [showPinChars, setShowPinChars] = useState(false);
   const [wrongAttempts, setWrongAttempts] = useState(() => {
-    return Number(localStorage.getItem("shop_app_wrong_pin_attempts") || "0");
+    const val = Number(localStorage.getItem("shop_app_wrong_pin_attempts") || "0");
+    return isNaN(val) ? 0 : val;
   });
   const [lockoutExpiry, setLockoutExpiry] = useState(() => {
-    return Number(localStorage.getItem("shop_app_lockout_expiry") || "0");
+    const val = Number(localStorage.getItem("shop_app_lockout_expiry") || "0");
+    return isNaN(val) ? 0 : val;
   });
   const [lockoutLevel, setLockoutLevel] = useState(() => {
-    return Number(localStorage.getItem("shop_app_lockout_level") || "0");
+    const val = Number(localStorage.getItem("shop_app_lockout_level") || "0");
+    return isNaN(val) ? 0 : val;
   });
   const [secondsLeft, setSecondsLeft] = useState(0);
 
