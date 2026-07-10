@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(({ command }) => {
   return {
-    base: command === 'build' ? '/' : '/shop-calculator/',
+    base: command === 'build' ? './' : '/shop-calculator/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

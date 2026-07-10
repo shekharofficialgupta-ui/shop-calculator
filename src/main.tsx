@@ -15,7 +15,11 @@ createRoot(document.getElementById('root')!).render(
 // Register Service Worker for Progressive Web App (PWA) offline capabilities
 if ('serviceWorker' in navigator) {
   const registerSW = () => {
-    const swUrl = `${import.meta.env.BASE_URL || '/'}sw.js`;
+    let baseUrl = import.meta.env.BASE_URL || '/';
+    if (!baseUrl.endsWith('/')) {
+      baseUrl += '/';
+    }
+    const swUrl = `${baseUrl}sw.js`;
     navigator.serviceWorker.register(swUrl)
       .then((registration) => {
         console.log('PWA Service Worker registered with scope:', registration.scope);
