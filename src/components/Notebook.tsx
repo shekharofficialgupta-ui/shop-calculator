@@ -255,7 +255,7 @@ export default function NotebookScreen({ language }: NotebookScreenProps) {
 
   return (
     <div className="text-gray-100 p-1 sm:p-2 min-h-screen pb-24">
-      <div className="max-w-md mx-auto">
+      <div className="w-full max-w-md mx-auto">
         {/* Module Header - 35% more compact layout */}
         <div className="flex items-center justify-between mb-2 pb-1 border-b border-gray-900/40">
           <div className="flex items-center gap-1.5">
@@ -351,7 +351,7 @@ export default function NotebookScreen({ language }: NotebookScreenProps) {
             </form>
 
             {/* Fixed bottom action buttons at screen bottom */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0F0F23]/95 backdrop-blur-md border-t border-gray-800/60 p-4 pb-[calc(16px+env(safe-area-inset-bottom))] flex gap-3 max-w-md mx-auto rounded-t-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.6)]">
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#0F0F23]/95 backdrop-blur-md border-t border-gray-800/60 p-4 pb-[calc(16px+env(safe-area-inset-bottom))] flex gap-3 w-full max-w-md mx-auto rounded-t-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.6)]">
               <button
                 type="submit"
                 onClick={handleCreateOrUpdate}

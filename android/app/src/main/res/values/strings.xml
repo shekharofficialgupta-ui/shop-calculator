@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Shop Calculator</string>
+    <string name="title_activity_main">Shop Calculator</string>
+    <string name="package_name">app.run.asia_southeast1.shop_calculator_275051715006.twa</string>
+    <string name="custom_url_scheme">app.run.asia_southeast1.shop_calculator_275051715006.twa</string>
+    <string name="asset_statements">[{\"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": {\"namespace\": \"web\", \"site\": \"https://shop-calculator-275051715006.asia-southeast1.run.app\"}}]</string>
+</resources>

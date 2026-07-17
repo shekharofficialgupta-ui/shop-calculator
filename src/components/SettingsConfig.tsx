@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { 
-  Settings, Store, Eye, EyeOff, RefreshCw, Check, Trash2, AlertTriangle, Globe, FileText, 
-  ShoppingBag, Calculator, Notebook, Lock, Unlock, Download, Upload, Info, HelpCircle, Heart, ShieldAlert,
+  Settings, Store, Eye, RefreshCw, Check, Trash2, AlertTriangle, Globe, FileText, 
+  ShoppingBag, Calculator, Notebook, Download, Upload, Info, HelpCircle, Heart, ShieldAlert,
   Share2
 } from "lucide-react";
 import { getTranslation } from "../translations";
@@ -68,75 +68,6 @@ export default function SettingsConfig({
     }
   };
 
-  // App Lock local states
-  const [isPinEnabled, setIsPinEnabled] = useState(() => {
-    return localStorage.getItem("shop_app_pin_enabled") === "true";
-  });
-  const [currentPin, setCurrentPin] = useState(() => {
-    return localStorage.getItem("shop_app_pin") || "";
-  });
-  const [oldPinVal, setOldPinVal] = useState("");
-  const [newPin, setNewPin] = useState("");
-  const [confirmPinVal, setConfirmPinVal] = useState("");
-  const [pinError, setPinError] = useState("");
-  const [pinSuccess, setPinSuccess] = useState("");
-
-  const [showOldPin, setShowOldPin] = useState(false);
-  const [showNewPin, setShowNewPin] = useState(false);
-  const [showConfirmPin, setShowConfirmPin] = useState(false);
-
-  const handleSavePin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPinError("");
-    setPinSuccess("");
-
-    if (currentPin && oldPinVal !== currentPin) {
-      setPinError(language === "hi" ? "पुराना PIN गलत है!" : "Incorrect Old PIN!");
-      return;
-    }
-
-    if (!/^\d{4}$/.test(newPin)) {
-      setPinError(language === "hi" ? "PIN केवल 4 अंकों का होना चाहिए!" : "PIN must be exactly 4 digits!");
-      return;
-    }
-
-    if (newPin !== confirmPinVal) {
-      setPinError(getTranslation("pinMismatch", language));
-      return;
-    }
-
-    localStorage.setItem("shop_app_pin", newPin);
-    localStorage.setItem("shop_app_pin_enabled", "true");
-    setCurrentPin(newPin);
-    setIsPinEnabled(true);
-    setPinSuccess(getTranslation("pinSaved", language));
-    setOldPinVal("");
-    setNewPin("");
-    setConfirmPinVal("");
-    setShowOldPin(false);
-    setShowNewPin(false);
-    setShowConfirmPin(false);
-  };
-
-  const handleToggleLock = () => {
-    const nextState = !isPinEnabled;
-    const existingPin = localStorage.getItem("shop_app_pin") || currentPin;
-    if (nextState && !existingPin) {
-      setPinError(language === "hi" ? "कृपया लॉक सक्षम करने से पहले एक PIN सेट करें!" : "Please set a PIN before enabling App Lock!");
-      return;
-    }
-    // Explicitly guarantee we do not touch the stored PIN
-    localStorage.setItem("shop_app_pin_enabled", nextState ? "true" : "false");
-    setIsPinEnabled(nextState);
-    if (existingPin) {
-      setCurrentPin(existingPin);
-      localStorage.setItem("shop_app_pin", existingPin);
-    }
-    setPinSuccess(nextState 
-      ? (language === "hi" ? "ऐप लॉक सफलतापूर्वक सक्षम किया गया!" : "App Lock enabled successfully!")
-      : (language === "hi" ? "ऐप लॉक सफलतापूर्वक अक्षम किया गया!" : "App Lock disabled successfully!")
-    );
-  };
 
   const handleLanguageChange = (lang: string) => {
     onLanguageChange(lang);
@@ -271,7 +202,7 @@ export default function SettingsConfig({
 
   return (
     <div className="text-gray-100 p-1 min-h-screen pb-20">
-      <div className="max-w-md mx-auto space-y-2.5">
+      <div className="w-full max-w-md mx-auto space-y-2.5">
         {/* Module Header */}
         <div className="flex items-center justify-between pb-1.5 border-b border-gray-900/60">
           <div className="flex items-center gap-2">
@@ -338,156 +269,6 @@ export default function SettingsConfig({
             </div>
           </div>
 
-          {/* APP LOCK (PIN) CONFIGURATION */}
-          <div className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-3 space-y-3 shadow-md animate-fadeIn">
-            <div className="flex items-center justify-between pb-1.5 border-b border-gray-900/40">
-              <div className="flex items-center gap-2">
-                <Lock className="w-3.5 h-3.5 text-violet-400" />
-                <span className="text-[9px] font-bold text-gray-300 uppercase tracking-wider">
-                  {getTranslation("appLockTitle", language)}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={handleToggleLock}
-                className={`text-[9px] font-mono font-bold px-2.5 py-1 rounded-full transition-all active:scale-95 cursor-pointer flex items-center gap-1 ${
-                  isPinEnabled
-                    ? "bg-violet-500/10 text-violet-400 border border-violet-500/25"
-                    : "bg-gray-900 text-gray-500 border border-gray-800"
-                }`}
-              >
-                {isPinEnabled ? (
-                  <>
-                    <Lock className="w-2.5 h-2.5" />
-                    <span>ENABLED</span>
-                  </>
-                ) : (
-                  <>
-                    <Unlock className="w-2.5 h-2.5" />
-                    <span>DISABLED</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            <p className="text-[9.5px] text-gray-400 leading-relaxed space-y-1">
-              <span>{getTranslation("appLockDesc", language)}</span>
-              {currentPin && (
-                <span className="block text-violet-400 font-semibold mt-1">
-                  {language === "hi" 
-                    ? "✓ आपका PIN सहेजा हुआ है। लॉक को बंद (DISABLE) करने पर भी PIN डिलीट नहीं होगा। जब आप दोबारा सक्षम करेंगे, तो यही PIN काम करेगा।"
-                    : "✓ Your PIN is securely saved. Disabling the lock won't delete or reset your PIN. When enabled again, your existing PIN will be active."}
-                </span>
-              )}
-            </p>
-
-            {/* Set/Change PIN Sub-Form */}
-            <form onSubmit={handleSavePin} className="bg-[#07070F]/50 border border-gray-800/60 rounded-xl p-2.5 space-y-2.5">
-              <div className="space-y-2.5">
-                {currentPin && (
-                  <div>
-                    <label className="block text-[8px] text-gray-400 uppercase font-bold mb-1">
-                      {getTranslation("enterOldPin", language)}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showOldPin ? "text" : "password"}
-                        maxLength={4}
-                        pattern="\d*"
-                        value={oldPinVal}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "");
-                          setOldPinVal(val);
-                        }}
-                        placeholder="••••"
-                        className="w-full bg-[#07070F] border border-gray-800 rounded-lg pl-2 pr-8 py-1 text-center font-mono text-xs text-white focus:outline-none focus:border-violet-500/30"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowOldPin(!showOldPin)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 focus:outline-none p-1 cursor-pointer flex items-center justify-center"
-                      >
-                        {showOldPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[8px] text-gray-400 uppercase font-bold mb-1">
-                      {getTranslation("enterNewPin", language)}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showNewPin ? "text" : "password"}
-                        maxLength={4}
-                        pattern="\d*"
-                        value={newPin}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "");
-                          setNewPin(val);
-                        }}
-                        placeholder="••••"
-                        className="w-full bg-[#07070F] border border-gray-800 rounded-lg pl-2 pr-8 py-1 text-center font-mono text-xs text-white focus:outline-none focus:border-violet-500/30"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPin(!showNewPin)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 focus:outline-none p-1 cursor-pointer flex items-center justify-center"
-                      >
-                        {showNewPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[8px] text-gray-400 uppercase font-bold mb-1">
-                      {getTranslation("confirmPin", language)}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPin ? "text" : "password"}
-                        maxLength={4}
-                        pattern="\d*"
-                        value={confirmPinVal}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "");
-                          setConfirmPinVal(val);
-                        }}
-                        placeholder="••••"
-                        className="w-full bg-[#07070F] border border-gray-800 rounded-lg pl-2 pr-8 py-1 text-center font-mono text-xs text-white focus:outline-none focus:border-violet-500/30"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPin(!showConfirmPin)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 focus:outline-none p-1 cursor-pointer flex items-center justify-center"
-                      >
-                        {showConfirmPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {pinError && (
-                <p className="text-[9px] text-red-400 bg-red-950/20 border border-red-900/10 py-1 px-2 rounded-md font-medium text-center">
-                  {pinError}
-                </p>
-              )}
-
-              {pinSuccess && (
-                <p className="text-[9px] text-emerald-400 bg-emerald-950/20 border border-emerald-900/10 py-1 px-2 rounded-md font-medium text-center">
-                  {pinSuccess}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                className="w-full py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-[10px] text-white font-bold font-mono tracking-wider transition-all active:scale-95 cursor-pointer"
-              >
-                {currentPin ? "UPDATE PIN" : getTranslation("setPin", language)}
-              </button>
-            </form>
-          </div>
 
           {/* Theme display setup - Extremely compact, no long paragraph */}
           <div className="bg-[#0F0F23] border border-gray-800/50 rounded-xl p-2.5 flex items-center justify-between shadow-md animate-fadeIn">

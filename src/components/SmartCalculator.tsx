@@ -362,7 +362,7 @@ export default function SmartCalculator({ onBack, language }: SmartCalculatorPro
   ];
 
   return (
-    <div className="text-gray-100 p-1 sm:p-2 md:p-3 max-w-md mx-auto flex flex-col justify-between select-none h-full">
+    <div className="text-gray-100 p-1 sm:p-2 md:p-3 w-full max-w-md mx-auto flex flex-col justify-between select-none h-full">
       <AnimatePresence mode="wait">
         {showHistoryPage ? (
           /* ================== DETACHED HISTORY VIEW ================== */

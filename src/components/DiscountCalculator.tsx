@@ -77,7 +77,7 @@ export default function DiscountCalculator({ language }: DiscountCalculatorProps
 
   return (
     <div className="text-gray-100 p-1" id="discount-calculator-module">
-      <div className="max-w-md mx-auto">
+      <div className="w-full max-w-md mx-auto">
         
         {/* Module Header */}
         <div className="flex items-center justify-between mb-3 pb-1.5 border-b border-gray-900/60">

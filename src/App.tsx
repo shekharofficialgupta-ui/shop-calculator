@@ -19,10 +19,6 @@ import {
   ChevronRight,
   Sparkles,
   Info,
-  Lock,
-  Delete,
-  Eye,
-  EyeOff,
   AlertTriangle
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -47,118 +43,14 @@ export default function App() {
   // Local language state
   const [language, setLanguage] = useState(() => localStorage.getItem("preferred_language") || "en");
 
-  // App Lock state
-  const [isUnlocked, setIsUnlocked] = useState(() => {
-    const isPinEnabled = localStorage.getItem("shop_app_pin_enabled") === "true";
-    const pin = localStorage.getItem("shop_app_pin");
-    return !isPinEnabled || !pin;
-  });
-  const [enteredPin, setEnteredPin] = useState("");
-  const [lockScreenError, setLockScreenError] = useState("");
-
-  const [showPinChars, setShowPinChars] = useState(false);
-  const [wrongAttempts, setWrongAttempts] = useState(() => {
-    const val = Number(localStorage.getItem("shop_app_wrong_pin_attempts") || "0");
-    return isNaN(val) ? 0 : val;
-  });
-  const [lockoutExpiry, setLockoutExpiry] = useState(() => {
-    const val = Number(localStorage.getItem("shop_app_lockout_expiry") || "0");
-    return isNaN(val) ? 0 : val;
-  });
-  const [lockoutLevel, setLockoutLevel] = useState(() => {
-    const val = Number(localStorage.getItem("shop_app_lockout_level") || "0");
-    return isNaN(val) ? 0 : val;
-  });
-  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
 
   useEffect(() => {
-    if (lockoutExpiry > Date.now()) {
-      const calcSecs = Math.max(0, Math.ceil((lockoutExpiry - Date.now()) / 1000));
-      setSecondsLeft(calcSecs);
-    } else {
-      setSecondsLeft(0);
-    }
-  }, [lockoutExpiry]);
-
-  useEffect(() => {
-    if (secondsLeft <= 0) return;
     const timer = setInterval(() => {
-      const calcSecs = Math.max(0, Math.ceil((lockoutExpiry - Date.now()) / 1000));
-      setSecondsLeft(calcSecs);
-      if (calcSecs <= 0) {
-        clearInterval(timer);
-      }
+      setCurrentDateTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, [secondsLeft, lockoutExpiry]);
-
-  const handlePinKeypad = (num: string) => {
-    if (secondsLeft > 0) return;
-    setLockScreenError("");
-    const newPin = enteredPin + num;
-    if (newPin.length <= 4) {
-      setEnteredPin(newPin);
-      
-      // If reached 4 digits, verify PIN
-      if (newPin.length === 4) {
-        const correctPin = localStorage.getItem("shop_app_pin") || "";
-        if (newPin === correctPin) {
-          setIsUnlocked(true);
-          // Reset lockout tracking on success
-          localStorage.removeItem("shop_app_wrong_pin_attempts");
-          localStorage.removeItem("shop_app_lockout_level");
-          localStorage.removeItem("shop_app_lockout_expiry");
-          setWrongAttempts(0);
-          setLockoutLevel(0);
-          setLockoutExpiry(0);
-        } else {
-          const nextAttempts = wrongAttempts + 1;
-          if (nextAttempts >= 5) {
-            // Trigger lockout
-            // level 0: 1 min, level 1: 2 min, level >= 2: 5 min
-            const duration = lockoutLevel === 0 ? 60 : lockoutLevel === 1 ? 120 : 300;
-            const expiry = Date.now() + duration * 1000;
-            
-            localStorage.setItem("shop_app_lockout_expiry", expiry.toString());
-            localStorage.setItem("shop_app_lockout_level", (lockoutLevel + 1).toString());
-            localStorage.setItem("shop_app_wrong_pin_attempts", "0");
-            
-            setLockoutExpiry(expiry);
-            setLockoutLevel((prev) => prev + 1);
-            setWrongAttempts(0);
-            setEnteredPin("");
-            
-            const errMsg = language === "hi" 
-              ? `बहुत ज़्यादा गलत प्रयास! कृपया ${duration / 60} मिनट बाद फिर से प्रयास करें।`
-              : `Too many incorrect attempts! Please try again in ${duration / 60} minute(s).`;
-            setLockScreenError(errMsg);
-          } else {
-            localStorage.setItem("shop_app_wrong_pin_attempts", nextAttempts.toString());
-            setWrongAttempts(nextAttempts);
-            
-            const remaining = 5 - nextAttempts;
-            const errMsg = language === "hi"
-              ? `गलत PIN! आपके पास ${remaining} प्रयास और बचे हैं।`
-              : `Incorrect PIN! You have ${remaining} attempt(s) remaining.`;
-            setLockScreenError(errMsg);
-            
-            if (navigator.vibrate) {
-              navigator.vibrate(100);
-            }
-            setTimeout(() => {
-              setEnteredPin("");
-            }, 350);
-          }
-        }
-      }
-    }
-  };
-
-  const handlePinBackspace = () => {
-    if (secondsLeft > 0) return;
-    setLockScreenError("");
-    setEnteredPin((prev) => prev.slice(0, -1));
-  };
+  }, []);
 
   // Local states for step 1 & 2
   const [shopName, setShopName] = useState(() => localStorage.getItem("shop_app_shop_name") || "");
@@ -239,6 +131,7 @@ export default function App() {
   const [shoppingTrigger, setShoppingTrigger] = useState(0);
 
   const [rawSalesToday, setRawSalesToday] = useState(0);
+  const [rawSalesYesterday, setRawSalesYesterday] = useState(0);
   const [billsToday, setBillsToday] = useState(0);
   const [rawShoppingEstimate, setRawShoppingEstimate] = useState(0);
   const [pendingItemsCount, setPendingItemsCount] = useState(0);
@@ -248,20 +141,30 @@ export default function App() {
     const savedHistory = localStorage.getItem("bill_invoice_history");
     const todayStr = new Date().toLocaleDateString();
     
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toLocaleDateString();
+    
     if (savedHistory) {
       try {
         const invoices = JSON.parse(savedHistory);
         const todaysInvoices = invoices.filter((inv: any) => inv.date === todayStr);
+        const yesterdaysInvoices = invoices.filter((inv: any) => inv.date === yesterdayStr);
         
         const salesSum = todaysInvoices.reduce((sum: number, inv: any) => sum + (parseFloat(inv.grandTotal) || 0), 0);
+        const salesSumYesterday = yesterdaysInvoices.reduce((sum: number, inv: any) => sum + (parseFloat(inv.grandTotal) || 0), 0);
+        
         setRawSalesToday(salesSum);
+        setRawSalesYesterday(salesSumYesterday);
         setBillsToday(todaysInvoices.length);
       } catch (e) {
         setRawSalesToday(0);
+        setRawSalesYesterday(0);
         setBillsToday(0);
       }
     } else {
       setRawSalesToday(0);
+      setRawSalesYesterday(0);
       setBillsToday(0);
     }
   }, [billTrigger]);
@@ -295,149 +198,7 @@ export default function App() {
     return formatInr(inrAmount, currency === "INR" ? 0 : 2);
   };
 
-  if (!isUnlocked) {
-    const isKeypadDisabled = secondsLeft > 0;
-    return (
-      <div className="min-h-screen bg-[#0A0A14] text-gray-100 flex flex-col items-center justify-center p-4">
-        <div className="max-w-xs w-full space-y-5 text-center animate-fadeIn">
-          {/* Logo */}
-          <div className="flex flex-col items-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-600 to-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(124,58,237,0.3)] border border-violet-400/30">
-              <Lock className="w-6 h-6 text-white animate-pulse" />
-            </div>
-            <div>
-              <h1 className="text-base font-extrabold text-white tracking-tight">
-                {getTranslation("appTitle", language)}
-              </h1>
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest font-mono">
-                {getTranslation("offlineHub", language)}
-              </p>
-            </div>
-          </div>
 
-          <div className="space-y-4 bg-[#0F0F23] border border-gray-800/60 p-5 rounded-2xl shadow-xl">
-            <div className="space-y-1">
-              <h2 className="text-xs font-bold text-gray-300 uppercase tracking-wider">
-                {getTranslation("enterPin", language)}
-              </h2>
-              <p className="text-[10px] text-gray-500">
-                {language === "hi" ? "ऐप सुरक्षित है" : "Application Secured"}
-              </p>
-            </div>
-
-            {/* Cooldown Timer Alert */}
-            {secondsLeft > 0 && (
-              <div className="bg-red-950/25 border border-red-900/35 rounded-xl p-3 space-y-1 text-center animate-fadeIn">
-                <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider">
-                  {language === "hi" ? "बहुत ज़्यादा गलत प्रयास!" : "TOO MANY INCORRECT ATTEMPTS!"}
-                </p>
-                <p className="text-[9px] text-gray-400">
-                  {language === "hi" 
-                    ? "सुरक्षा कारणों से ऐप अस्थाई रूप से लॉक है।" 
-                    : "The app has been temporarily locked for security."}
-                </p>
-                <div className="flex items-center justify-center gap-1.5 py-1 text-red-400 font-mono font-extrabold text-base tracking-widest animate-pulse">
-                  <span>{Math.floor(secondsLeft / 60).toString().padStart(2, '0')}</span>
-                  <span>:</span>
-                  <span>{(secondsLeft % 60).toString().padStart(2, '0')}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Digit Indicators with eye toggle */}
-            <div className="flex items-center justify-center gap-3.5 py-1">
-              <div className="flex gap-2.5">
-                {[0, 1, 2, 3].map((index) => {
-                  const isEntered = enteredPin.length > index;
-                  const char = isEntered && showPinChars ? enteredPin[index] : "";
-                  return (
-                    <div
-                      key={index}
-                      className={`w-9 h-9 rounded-xl border flex items-center justify-center font-mono font-bold text-sm transition-all duration-150 ${
-                        isEntered
-                          ? "bg-violet-950/40 border-violet-500/70 text-violet-300 scale-105 shadow-[0_0_10px_rgba(167,139,250,0.3)]"
-                          : "bg-transparent border-gray-800 text-gray-600"
-                      }`}
-                    >
-                      {char ? char : (isEntered ? "•" : "")}
-                    </div>
-                  );
-                })}
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPinChars(!showPinChars)}
-                disabled={isKeypadDisabled}
-                className={`p-2 rounded-xl bg-gray-950 border border-gray-800 text-gray-400 hover:text-gray-200 active:scale-95 transition-all cursor-pointer focus:outline-none ${isKeypadDisabled ? "opacity-20 cursor-not-allowed" : ""}`}
-                title={showPinChars ? "Hide PIN" : "Show PIN"}
-              >
-                {showPinChars ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {lockScreenError && (
-              <p className="text-[10px] text-red-400 font-semibold animate-pulse max-w-[200px] mx-auto">
-                {lockScreenError}
-              </p>
-            )}
-
-            {/* Premium Touch Grid Keypad */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
-              {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
-                <button
-                  key={num}
-                  type="button"
-                  disabled={isKeypadDisabled}
-                  onClick={() => !isKeypadDisabled && handlePinKeypad(num)}
-                  className={`w-12 h-12 rounded-full border text-white text-sm font-bold flex items-center justify-center active:scale-90 transition-all font-mono ${
-                    isKeypadDisabled 
-                      ? "bg-gray-950/30 border-gray-900/40 text-gray-700 cursor-not-allowed opacity-30" 
-                      : "bg-gray-900/60 hover:bg-gray-800 border border-gray-800/40 cursor-pointer"
-                  }`}
-                >
-                  {num}
-                </button>
-              ))}
-              
-              <div className="w-12 h-12" />
-
-              <button
-                type="button"
-                disabled={isKeypadDisabled}
-                onClick={() => !isKeypadDisabled && handlePinKeypad("0")}
-                className={`w-12 h-12 rounded-full border text-white text-sm font-bold flex items-center justify-center active:scale-90 transition-all font-mono ${
-                  isKeypadDisabled 
-                    ? "bg-gray-950/30 border-gray-900/40 text-gray-700 cursor-not-allowed opacity-30" 
-                    : "bg-gray-900/60 hover:bg-gray-800 border border-gray-800/40 cursor-pointer"
-                }`}
-              >
-                0
-              </button>
-
-              <button
-                type="button"
-                disabled={isKeypadDisabled}
-                onClick={() => !isKeypadDisabled && handlePinBackspace()}
-                className={`w-12 h-12 rounded-full flex items-center justify-center active:scale-90 transition-all ${
-                  isKeypadDisabled
-                    ? "bg-gray-950/30 border-gray-900/40 text-gray-700 cursor-not-allowed opacity-30"
-                    : "bg-red-950/20 hover:bg-red-900/30 border border-red-900/20 text-red-400 cursor-pointer"
-                }`}
-              >
-                <Delete className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <p className="text-[9px] text-gray-600 font-mono">
-              {getTranslation("madeInIndia", language)}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#0A0A14] text-gray-100 font-sans flex flex-col selection:bg-violet-500/30 selection:text-violet-200">
@@ -498,7 +259,7 @@ export default function App() {
           <div className="animate-fadeIn">
             {/* Elegant Back Navigation Bar */}
             {selectedModule !== "SmartCalculator" && selectedModule !== "BillMaker" && selectedModule !== "EmiCalculator" && (
-              <div className="max-w-md mx-auto mb-4 flex items-center justify-between border-b border-gray-900/45 pb-2">
+              <div className="w-full max-w-md mx-auto mb-4 flex items-center justify-between border-b border-gray-900/45 pb-2">
                 <button 
                   onClick={() => { setSelectedModule(null); setActiveTab("Home"); }}
                   className="text-[10px] text-gray-300 hover:text-white flex items-center gap-1.5 font-bold py-1 px-3 rounded-lg bg-gray-900 border border-gray-800 transition-all hover:border-gray-700 active:scale-95 cursor-pointer"
@@ -510,7 +271,7 @@ export default function App() {
             )}
 
             {selectedModule === "BillMaker" && (
-              <div className="max-w-md mx-auto mb-3 flex items-center justify-between border-b border-gray-900/45 pb-2 gap-2">
+              <div className="w-full max-w-md mx-auto mb-3 flex items-center justify-between border-b border-gray-900/45 pb-2 gap-2">
                 <button 
                   onClick={() => { setSelectedModule(null); setActiveTab("Home"); }}
                   className="text-[10px] text-gray-300 hover:text-white flex items-center gap-1.5 font-bold py-1 px-2.5 rounded-lg bg-gray-900 border border-gray-800 transition-all hover:border-gray-700 active:scale-95 cursor-pointer shrink-0"
@@ -575,8 +336,26 @@ export default function App() {
                   {getTranslation("welcomeUser", language)}
                 </h3>
                 <span className="text-[11px] text-gray-400">•</span>
-                <span className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> Sun, 05 July 2026
+                <span className="text-[10px] text-gray-400 font-mono flex flex-wrap items-center gap-1.5">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-cyan-400" />
+                    {(() => {
+                      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                      const months = [
+                        "January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"
+                      ];
+                      const dayName = days[currentDateTime.getDay()];
+                      const dateVal = String(currentDateTime.getDate()).padStart(2, "0");
+                      const monthName = months[currentDateTime.getMonth()];
+                      const yearVal = currentDateTime.getFullYear();
+                      return `${dayName}, ${dateVal} ${monthName} ${yearVal}`;
+                    })()}
+                  </span>
+                  <span className="text-gray-600">•</span>
+                  <span className="text-cyan-400 font-bold">
+                    {currentDateTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}
+                  </span>
                 </span>
               </div>
 
@@ -603,8 +382,53 @@ export default function App() {
                   {formatAmount(rawSalesToday)}
                 </p>
                 <div className="flex items-center gap-1 mt-1 text-[9px] text-gray-500">
-                  <span className="text-emerald-400 font-medium font-mono">↑ 12.4%</span>
-                  <span>{getTranslation("vsYesterday", language)}</span>
+                  {(() => {
+                    if (rawSalesYesterday === 0 && rawSalesToday === 0) {
+                      const noDataDict: Record<string, string> = {
+                        en: "No data yet",
+                        hi: "अभी कोई डेटा नहीं",
+                        mr: "अद्याप डेटा नाही",
+                        gu: "હજુ કોઈ ડેટા નથી",
+                        ta: "இன்னும் தரவு இல்லை",
+                        te: "ఇంకా సమాచారం లేదు",
+                        bn: "এখনো কোনো তথ্য নেই",
+                        kn: "ಇನ್ನೂ ಮಾಹಿತಿ ಇಲ್ಲ",
+                        pa: "ਹਾਲੇ ਕੋਈ ਡਾਟา ਨਹੀਂ",
+                        ml: "വിവരങ്ങൾ ലഭ്യമല്ല",
+                      };
+                      return <span className="text-gray-500 italic font-medium">{noDataDict[language] || noDataDict["en"]}</span>;
+                    }
+                    
+                    let pct = 0;
+                    if (rawSalesYesterday === 0) {
+                      pct = 100;
+                    } else {
+                      pct = ((rawSalesToday - rawSalesYesterday) / rawSalesYesterday) * 100;
+                    }
+                    
+                    if (pct > 0) {
+                      return (
+                        <>
+                          <span className="text-emerald-400 font-medium font-mono">↑ {pct.toFixed(1)}%</span>
+                          <span>{getTranslation("vsYesterday", language)}</span>
+                        </>
+                      );
+                    } else if (pct < 0) {
+                      return (
+                        <>
+                          <span className="text-rose-400 font-medium font-mono">↓ {Math.abs(pct).toFixed(1)}%</span>
+                          <span>{getTranslation("vsYesterday", language)}</span>
+                        </>
+                      );
+                    } else {
+                      return (
+                        <>
+                          <span className="text-gray-500 font-medium font-mono">0.0%</span>
+                          <span>{getTranslation("vsYesterday", language)}</span>
+                        </>
+                      );
+                    }
+                  })()}
                 </div>
               </div>
 
@@ -827,7 +651,7 @@ export default function App() {
 
       {/* STICKY BOTTOM NAVIGATION */}
       <nav className={`fixed bottom-0 left-0 right-0 bg-[#0A0A14]/90 backdrop-blur-lg border-t border-gray-800/50 px-4 py-2.5 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.6)] transition-all duration-300 ${isInputFocused ? "max-md:translate-y-24 max-md:opacity-0 max-md:pointer-events-none" : "translate-y-0"}`}>
-        <div className="max-w-md mx-auto flex items-center justify-between">
+        <div className="w-full max-w-md mx-auto flex items-center justify-between">
           
           {/* Tab 1: Home */}
           <button 

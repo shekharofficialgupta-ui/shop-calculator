@@ -163,7 +163,7 @@ export default function EmiCalculator({ onBack, language }: EmiCalculatorProps) 
 
   return (
     <div className="text-gray-100 p-1">
-      <div className="max-w-md mx-auto">
+      <div className="w-full max-w-md mx-auto">
         {/* Compact Integrated Module Header */}
         <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-900/60">
           <button 

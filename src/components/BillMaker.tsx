@@ -60,6 +60,14 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
   }, [history]);
 
   const [showHistory, setShowHistory] = useState(false);
+  const [liveDateTime, setLiveDateTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLiveDateTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const [customerName, setCustomerName] = useState("");
@@ -468,16 +476,19 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
         setPrintStatus("Web Share not supported. PDF downloaded!");
       }
     } catch (error: any) {
-      console.error("Error sharing PDF:", error);
       const isCancel = error && (
         error.name === "AbortError" || 
         String(error).toLowerCase().includes("cancel") || 
-        String(error).toLowerCase().includes("abort")
+        String(error).toLowerCase().includes("abort") ||
+        (error.message && String(error.message).toLowerCase().includes("cancel")) ||
+        (error.message && String(error.message).toLowerCase().includes("abort"))
       );
 
       if (isCancel) {
+        console.warn("PDF sharing was canceled by the user:", error);
         setPrintStatus("Share canceled");
       } else {
+        console.error("Error sharing PDF:", error);
         try {
           const doc = generatePDF();
           doc.save(`Invoice_${invoiceNumber || "Bill"}.pdf`);
@@ -523,7 +534,7 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
           }
         }
       `}</style>
-      <div className="max-w-md mx-auto">
+      <div className="w-full max-w-md mx-auto">
         {/* Invoice input form */}
         <div className="space-y-3.5 mb-6">
           {/* Metadata Grid */}
@@ -796,7 +807,7 @@ export default function BillMaker({ shopName = "", onHistoryChanged, language }:
             <div className="text-center pb-3 border-b border-dashed border-gray-300">
               <h4 className="text-sm font-bold tracking-tight uppercase">{shopName}</h4>
               <p className="text-[9px] text-gray-500">Invoice #{invoiceNumber}</p>
-              <p className="text-[8px] text-gray-400 mt-0.5">Date: {new Date().toLocaleDateString()} • {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+              <p className="text-[8px] text-gray-400 mt-0.5">Date: {liveDateTime.toLocaleDateString()} • {liveDateTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second: '2-digit'})}</p>
             </div>
 
             {/* Customer */}

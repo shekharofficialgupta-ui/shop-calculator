@@ -277,7 +277,7 @@ export default function ShoppingList({ onListChanged, language }: ShoppingListPr
 
   return (
     <div className="text-gray-100 p-1" id="shopping-list-module">
-      <div className="max-w-md mx-auto space-y-3">
+      <div className="w-full max-w-md mx-auto space-y-3">
         
         {/* Sleek Retail Header */}
         <div className="flex items-center justify-between pb-1.5 border-b border-gray-900/60">
