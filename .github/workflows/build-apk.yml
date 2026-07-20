@@ -41,11 +41,10 @@ jobs:
       - name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
 
-      - name: Fix Gradle Wrapper Jar
+      - - name: Fix Gradle Wrapper Jar
         run: |
           cd android
-          curl -L -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.7.0/gradle/wrapper/gradle-wrapper.jar
-
+          gradle wrapper --gradle-version 8.7
       - name: Build Android Debug APK
         run: |
           cd android
