@@ -37,8 +37,7 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
           cache: 'gradle'
-
-      - name: Make Gradle Wrapper Executable
+- name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
         - name: Fix Gradle Wrapper Jar
         run: |
