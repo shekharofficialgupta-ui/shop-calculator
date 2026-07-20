@@ -41,7 +41,7 @@ jobs:
       - name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
 
-      - - name: Fix Gradle Wrapper Jar
+     - name: Fix Gradle Wrapper Jar
         run: |
           cd android
           gradle wrapper --gradle-version 8.7
