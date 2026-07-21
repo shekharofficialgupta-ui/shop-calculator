@@ -14,37 +14,16 @@
             android:value="@string/asset_statements" />
 
         <activity
-            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="https"
-                    android:host="shop-calculator-275051715006.asia-southeast1.run.app" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                android:value="https://shop-calculator-275051715006.asia-southeast1.run.app" />
-            <meta-data
-                android:name="android.support.customtabs.trusted.DISPLAY_MODE"
-                android:value="default" />
-        </activity>
-
-        <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <provider
